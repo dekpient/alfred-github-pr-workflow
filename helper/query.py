@@ -55,6 +55,15 @@ def query(org, username):
         repository {
           name
         }
+        commits(last: 1) {
+          nodes {
+            commit {
+              statusCheckRollup {
+                state
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -79,6 +88,7 @@ def transform(pr):
         'state': n['state'],
         'submittedAt': n['submittedAt']
     }, pr['reviews']['nodes'])
+    pr['statusCheck'] = pr['commits']['nodes'][0]['commit']['statusCheckRollup']['state']
     return pr
 
 

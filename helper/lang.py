@@ -29,6 +29,14 @@ my_review_status = {
     'DISMISSED': u'My review is dismissed %s ❕'
 }
 
+status_check_state = {
+    'EXPECTED': u'❔ Check expected',
+    'ERROR': u'❗️ Check error',
+    'FAILURE': u'❌ Check failed',
+    'PENDING': u'🔆 Check pending',
+    'SUCCESS': u'✅ Check successful'
+}
+
 def prettytime(date_string):
     date = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
     diff = datetime.utcnow() - date
@@ -67,14 +75,19 @@ def review_status(reviews):
 def get_display(user, pr):
     icon = 'icon-pr-draft.png' if pr['isDraft'] else status_icon[pr['reviewDecision']]
     title = '[%s] %s' % (pr['repository'], pr['title'])
-    my_review = u'%s%s • %s' % (requested_review_status(user, pr['reviewRequests']), review_status(pr['reviews']), status[pr['reviewDecision']])
+    my_review = u'%s%s • %s • %s' % (
+        requested_review_status(user, pr['reviewRequests']),
+        review_status(pr['reviews']),
+        status[pr['reviewDecision']],
+        status_check_state[pr['statusCheck']]
+    )
     assigned_to_me = 'Assigned to me.' if user in pr['assignees'] else ''
     info = 'Opened %s by %s. Updated %s. %s' % (prettytime(pr['createdAt']), pr['author'], prettytime(pr['updatedAt']), assigned_to_me)
     draft = '[DRAFT] ' if pr['isDraft'] else ''
     details = '%sChanged files: %d. %s' % (draft, pr['changedFiles'], merge_status[pr['mergeable']])
 
     return {
-        'icon': icon,
+        'icon': ('icons/%s' % icon),
         'title': title,
         'info': info,
         'my_review': my_review,
