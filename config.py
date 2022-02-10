@@ -28,7 +28,7 @@ def main(wf):
         [key, value] = data
         wf.logger.debug('key=%r, value=%r', key, value)
         query = ('%s %s' % (key, value))
-        wf.add_item('Config', 'Set %s as %s' % (key, value), arg=query, valid=True, icon=ICON_INFO)
+        wf.add_item('Set %s as %s' % (key, value), arg=query, valid=True, icon=ICON_INFO)
     except Exception as err:
         wf.logger.debug('err=%r', err)
         wf.add_item('Error', 'Bad data', valid=False, icon=ICON_ERROR)

@@ -15,7 +15,7 @@ def query(org, username):
     # -reviewed-by:@me
     q = """
 {
-  search(query: "org:%s is:pr is:open", type: ISSUE, last: 100) {
+  search(query: "org:%s is:pr is:open -author:app/dependabot", type: ISSUE, last: 100) {
     nodes {
       ... on PullRequest {
         author {
@@ -82,13 +82,22 @@ def transform(pr):
     pr['author'] = pr['author']['login']
     pr['repository'] = pr['repository']['name']
     pr['assignees'] = map(lambda n: n['login'], pr['assignees']['nodes'])
-    pr['reviewRequests'] = map(lambda n: n['requestedReviewer']['login'], pr['reviewRequests']['nodes'])
+
+    try:
+      pr['reviewRequests'] = map(lambda n: n['requestedReviewer']['login'], pr['reviewRequests']['nodes'])
+    except Exception:
+      pr['reviewRequests'] = []
+
     pr['reviews'] = map(lambda n: {
         'reviewer': n['author']['login'],
         'state': n['state'],
         'submittedAt': n['submittedAt']
     }, pr['reviews']['nodes'])
-    pr['statusCheck'] = pr['commits']['nodes'][0]['commit']['statusCheckRollup']['state']
+    try:
+      pr['statusCheck'] = pr['commits']['nodes'][0]['commit']['statusCheckRollup']['state']
+    except Exception:
+      print pr['commits']['nodes']
+      pr['statusCheck'] = 'ERROR'
     return pr
 
 

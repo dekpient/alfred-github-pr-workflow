@@ -6,13 +6,15 @@ from datetime import datetime
 status = {
     'CHANGES_REQUESTED': 'Changes requested',
     'APPROVED': 'Approved',
-    'REVIEW_REQUIRED': 'Review required'
+    'REVIEW_REQUIRED': 'Review required',
+    None: 'Review required'
 }
 
 status_icon = {
     'CHANGES_REQUESTED': 'icon-pr-blocked.png',
     'APPROVED': 'icon-pr-approved.png',
-    'REVIEW_REQUIRED': 'icon-pr.png'
+    'REVIEW_REQUIRED': 'icon-pr.png',
+    None: 'icon-pr.png'
 }
 
 merge_status = {
@@ -38,6 +40,9 @@ status_check_state = {
 }
 
 def prettytime(date_string):
+    if not date_string:
+        return '??'
+
     date = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
     diff = datetime.utcnow() - date
     s = diff.seconds
