@@ -3,8 +3,7 @@
 
 import json
 
-from workflow import web
-
+from urllib import request
 
 def query(org, username):
     # review:none
@@ -81,22 +80,21 @@ def headers(auth_token):
 def transform(pr):
     pr['author'] = pr['author']['login']
     pr['repository'] = pr['repository']['name']
-    pr['assignees'] = map(lambda n: n['login'], pr['assignees']['nodes'])
+    pr['assignees'] = list(map(lambda n: n['login'], pr['assignees']['nodes']))
 
     try:
-      pr['reviewRequests'] = map(lambda n: n['requestedReviewer']['login'], pr['reviewRequests']['nodes'])
+      pr['reviewRequests'] = list(map(lambda n: n['requestedReviewer']['login'], pr['reviewRequests']['nodes']))
     except Exception:
-      pr['reviewRequests'] = []
+      pr['reviewRequests'] = list()
 
-    pr['reviews'] = map(lambda n: {
+    pr['reviews'] = list(map(lambda n: {
         'reviewer': n['author']['login'],
         'state': n['state'],
         'submittedAt': n['submittedAt']
-    }, pr['reviews']['nodes'])
+    }, pr['reviews']['nodes']))
     try:
       pr['statusCheck'] = pr['commits']['nodes'][0]['commit']['statusCheckRollup']['state']
     except Exception:
-      print pr['commits']['nodes']
       pr['statusCheck'] = 'ERROR'
     return pr
 
@@ -104,10 +102,11 @@ def transform(pr):
 def get_org_prs(user, org, auth_token):
     def get():
         search_url = 'https://api.github.com/graphql'
-        data = query(org, user)
-        response = web.post(search_url, None, data, headers(auth_token))
-        response.raise_for_status()
-        nodes = response.json()['data']['search']['nodes']
-        return map(transform, nodes)
+        data = query(org, user).encode()
+        req =  request.Request(search_url, data=data, headers=headers(auth_token))
+        response = request.urlopen(req).read().decode('utf-8')
+        response_json = json.loads(response)
+        nodes = response_json['data']['search']['nodes']
+        return list(map(transform, nodes))
 
     return get

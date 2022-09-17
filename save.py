@@ -16,13 +16,14 @@ def main(wf):
 
         if key in ['user', 'org']:
             wf.store_data(key, value)
-            print(Variables('Set your %s to "%s"' % (key, value)))
+            print("Set your {0} to {1}".format(key, value))
         elif key == 'token':
             wf.save_password('ghpr-api-key', value)
-            print(Variables('Saved your API token in Keychain'))
+            print("Saved your API token in Keychain")
         else:
             return 1
     except Exception as err:
+        # wf.logger.exception(err)
         wf.logger.debug('err=%r', err)
         return 1
 

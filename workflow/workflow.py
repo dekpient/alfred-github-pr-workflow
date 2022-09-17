@@ -1673,8 +1673,8 @@ class Workflow(object):
             delete_paths((metadata_path, data_path))
             return
 
-        if isinstance(data, str):
-            data = bytearray(data)
+        # if isinstance(data, str):
+            # data = bytearray(data)
 
         # Ensure write is not interrupted by SIGTERM
         @uninterruptible
